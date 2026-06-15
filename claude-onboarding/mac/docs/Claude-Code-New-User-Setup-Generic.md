@@ -43,10 +43,13 @@ A software runtime that Claude Code and many AI tools are built on. Installed vi
 **Step 4 -- Claude Code**
 The AI assistant application itself. Installed using the official Anthropic installer to `~/.local/bin/claude`.
 
-**Step 5 -- Pandoc and Typst**
+**Step 5 -- Claude Desktop**
+The standalone GUI application for Claude. Claude Desktop lets you use Claude without a terminal window, and it includes Cowork -- a folder-based AI tool that lets you describe a task and have Claude carry it out across your files without typing commands. Recommended for non-technical users. Installed via Homebrew and placed in `/Applications/Claude.app`.
+
+**Step 6 -- Pandoc and Typst**
 Document conversion tools. Pandoc converts files between formats (for example, from Markdown to PDF or Word). Typst is a lightweight PDF engine that Pandoc uses to create PDFs. Together they let Claude Code produce finished PDF documents without any additional software.
 
-**Step 6 -- Code Quality Tools**
+**Step 7 -- Code Quality Tools**
 Developer tools that check the quality and style of scripts across multiple languages. The script installs:
 
 - **shellcheck** -- analyzes Bash and Zsh scripts for common errors and style issues
@@ -54,7 +57,7 @@ Developer tools that check the quality and style of scripts across multiple lang
 - **flake8, black, isort, mypy, and pytest** -- Python linting, formatting, and testing tools
 - **PSScriptAnalyzer** -- PowerShell linting (installed automatically if PowerShell Core is already present on your Mac)
 
-**Step 7 -- Your Workspaces Folders**
+**Step 8 -- Your Workspaces Folders**
 A set of organized folders in your home directory where you will keep all your Claude-assisted work. The script creates the following:
 
 ```
@@ -67,14 +70,14 @@ A set of organized folders in your home directory where you will keep all your C
     +-- zsh/          Finished, tested scripts
 ```
 
-**Step 8 -- Claude Code Configuration**
+**Step 9 -- Claude Code Configuration**
 Starter configuration files that tell Claude Code about you and how you like to work. The script creates three files:
 
 - `~/.claude/CLAUDE.md` -- Your personal instructions to Claude. This is the most important file to fill in after the script finishes.
 - `~/Workspaces/_Global/CLAUDE.md` -- Organization context. Fill in your name, role, tools, and standards.
-- `~/.claude/settings.json` -- Technical configuration that wires up the credential guard (Step 9). You do not need to edit this file.
+- `~/.claude/settings.json` -- Technical configuration that wires up the credential guard (Step 10). You do not need to edit this file.
 
-**Step 9 -- Credential Guard**
+**Step 10 -- Credential Guard**
 A security hook that automatically monitors every shell command Claude runs and blocks any command that appears to contain an inline password, token, or API key. It is a safety net -- it does not replace good security judgment, but it catches common mistakes before they happen.
 
 ---
@@ -190,7 +193,7 @@ Claude Code can read and write files on your Mac. Keep these rules in mind at al
 - **Student records, HR data, and health information** must never be shared with Claude or any AI tool -- FERPA and HIPAA apply
 - **When in doubt, leave it out** -- if you are not sure whether sharing something is appropriate, check with your IT administrator before proceeding
 
-The credential guard installed in Step 9 provides an automatic check, but it is a safety net, not a substitute for your own judgment.
+The credential guard installed in Step 10 provides an automatic check, but it is a safety net, not a substitute for your own judgment.
 
 ---
 

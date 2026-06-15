@@ -9,10 +9,10 @@
 #              Safe to re-run -- each step checks before installing or creating.
 # Author:      [Your Name]
 # Date:        2026-05-12
-# Version:     2.2
+# Version:     2.3
 # Usage:       zsh ~/Desktop/setup-claude-code-generic.sh
 # Notes:       Do NOT run with sudo -- Homebrew will refuse to install.
-#              Requires internet access for Steps 1-6.
+#              Requires internet access for Steps 1-7.
 #              Existing config files are never overwritten.
 #
 # Version History:
@@ -26,6 +26,8 @@
 #                    Both PATH blocks now run unconditionally after the install
 #                    check, so all Homebrew-installed tools and claude are always
 #                    reachable in new Terminal sessions.
+#   2.3  2026-06-15  Added Step 5: Claude Desktop app (brew --cask claude).
+#                    Renumbered subsequent steps 5-9 to 6-10.
 # =============================================================================
 
 # -- Output helpers --
@@ -47,11 +49,12 @@ echo "    1. Install Xcode Command Line Tools (if needed)"
 echo "    2. Install Homebrew package manager (if needed)"
 echo "    3. Install Node.js via Homebrew (if needed)"
 echo "    4. Install Claude Code CLI (if needed)"
-echo "    5. Install Pandoc, Typst, and Poppler (document tools)"
-echo "    6. Install code quality tools (shellcheck, swiftlint, Python linters)"
-echo "    7. Create ~/Workspaces/ folder structure"
-echo "    8. Create ~/.claude/ starter configuration"
-echo "    9. Install credential guard security hook"
+echo "    5. Install Claude Desktop app"
+echo "    6. Install Pandoc, Typst, and Poppler (document tools)"
+echo "    7. Install code quality tools (shellcheck, swiftlint, Python linters)"
+echo "    8. Create ~/Workspaces/ folder structure"
+echo "    9. Create ~/.claude/ starter configuration"
+echo "   10. Install credential guard security hook"
 echo ""
 echo "  Existing files are never overwritten."
 echo "  Do NOT run with sudo."
@@ -202,13 +205,39 @@ fi
 echo ""
 
 # =============================================================================
-# STEP 5 — Pandoc, Typst, and Poppler (document tools)
+# STEP 5 — Claude Desktop app
+# Claude Desktop is the GUI application for Claude. It provides the Cowork
+# interface (folder-based autonomous tasks) and is the recommended entry point
+# for non-technical users who are not working in a terminal. Installed via
+# Homebrew cask so it can be detected and skipped on re-runs.
+# =============================================================================
+print_step 5 "Claude Desktop app"
+
+if [[ -d "/Applications/Claude.app" ]]; then
+    print_ok "Already installed at /Applications/Claude.app"
+    SKIPPED+=("Claude Desktop")
+else
+    print_warn "Not installed. Installing via Homebrew cask..."
+    brew install --cask claude
+    if [[ -d "/Applications/Claude.app" ]]; then
+        print_ok "Claude Desktop installed"
+        INSTALLED+=("Claude Desktop")
+    else
+        print_warn "Could not confirm Claude Desktop install via Homebrew."
+        print_warn "If it is not in /Applications, download it manually from claude.ai/download"
+        SKIPPED+=("Claude Desktop (verify manually)")
+    fi
+fi
+echo ""
+
+# =============================================================================
+# STEP 6 — Pandoc, Typst, and Poppler (document tools)
 # Pandoc converts documents between formats (Markdown -> PDF, Word, HTML, etc.).
 # Typst is a lightweight PDF engine Pandoc uses to generate PDFs without a full
 # LaTeX installation. Poppler provides PDF utilities including pdftoppm, which
 # lets Claude Code read and render existing PDF files.
 # =============================================================================
-print_step 5 "Pandoc, Typst, and Poppler (document tools)"
+print_step 6 "Pandoc, Typst, and Poppler (document tools)"
 
 pandoc_ok=0
 typst_ok=0
@@ -274,7 +303,7 @@ fi
 echo ""
 
 # =============================================================================
-# STEP 6 — Code quality tools (shellcheck, swiftlint, Python linters)
+# STEP 7 — Code quality tools (shellcheck, swiftlint, Python linters)
 # These tools are used for code quality checks across your projects.
 # shellcheck lints Bash and Zsh scripts. swiftlint lints Swift source files.
 # The Python tools (flake8, black, isort, mypy, pytest) are used for Python
@@ -283,7 +312,7 @@ echo ""
 # Note: Python tools are invoked as "python3 -m <tool>" because pip3 on macOS
 # installs them to a path that is not in $PATH by default.
 # =============================================================================
-print_step 6 "Code quality tools (shellcheck, swiftlint, Python linters)"
+print_step 7 "Code quality tools (shellcheck, swiftlint, Python linters)"
 
 shellcheck_ok=0
 swiftlint_ok=0
@@ -372,12 +401,12 @@ fi
 echo ""
 
 # =============================================================================
-# STEP 7 — ~/Workspaces/ folder structure
+# STEP 8 — ~/Workspaces/ folder structure
 # Creates a starter working folder layout at ~/Workspaces/. These folders
 # provide a standard layout for organizing Claude-assisted work. All your
 # project files, documentation, and scripts will live here.
 # =============================================================================
-print_step 7 "$HOME/Workspaces/ folder structure"
+print_step 8 "$HOME/Workspaces/ folder structure"
 
 FOLDERS=(
     "$HOME/Workspaces/_Global"
@@ -406,16 +435,16 @@ fi
 echo ""
 
 # =============================================================================
-# STEP 8 — ~/.claude/ starter configuration
+# STEP 9 — ~/.claude/ starter configuration
 # Creates Claude Code's config directory and populates it with starter files:
 #   - ~/.claude/CLAUDE.md         Personal instructions (fill in your info)
 #   - _Global/CLAUDE.md           Project context (fill in your info)
 #   - ~/.claude/settings.json     Basic settings with credential guard wired in
 #   - ~/.claude/commands/         Ready for custom slash commands you add later
-#   - ~/.claude/hooks/            Ready for automation hooks (Step 9 adds one)
+#   - ~/.claude/hooks/            Ready for automation hooks (Step 10 adds one)
 # Existing files are never overwritten.
 # =============================================================================
-print_step 8 "$HOME/.claude/ starter configuration"
+print_step 9 "$HOME/.claude/ starter configuration"
 
 mkdir -p ~/.claude/commands ~/.claude/hooks
 
@@ -548,13 +577,13 @@ fi
 echo ""
 
 # =============================================================================
-# STEP 9 — Credential guard hook
+# STEP 10 — Credential guard hook
 # Installs a security hook that watches every shell command Claude runs and
 # blocks any command that appears to contain an inline credential (password,
 # token, API key, etc.). This is an automatic safety net -- it does not replace
 # good security habits, but it catches common mistakes before they happen.
 # =============================================================================
-print_step 9 "Credential guard hook"
+print_step 10 "Credential guard hook"
 
 HOOK="$HOME/.claude/hooks/credential-guard.sh"
 
