@@ -23,7 +23,8 @@ placeholders to find everything that needs customizing before you share it.
 ```
 claude-onboarding/
   docs/                                    Shared guides (apply to Mac and PC)
-    Claude-Cowork-Quick-Start-Generic.md   How to start a Claude Cowork session
+    Claude-Desktop-User-Guide-Generic.md   Full getting-started guide for all users
+    Claude-Cowork-Quick-Start-Generic.md   Quick reference for Cowork sessions
 
   mac/                                     Mac onboarding kit
     setup-claude-code-generic.sh           Bootstrap script (zsh)
