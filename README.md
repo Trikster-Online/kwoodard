@@ -81,17 +81,29 @@ matching setup guide under `docs/`.
 
 ### 4. Distribute to your users
 
-Share the platform-appropriate folder with each user:
-- Mac users: send `mac/setup-claude-code-generic.sh` and `mac/docs/Claude-Code-New-User-Setup-Generic.md`
-- PC users: send `pc/setup-claude-code-generic.ps1` and `pc/docs/Claude-Code-New-User-Setup-PC-Generic.md`
+Two guides serve different audiences:
 
-The setup guide explains how to run the script. Have users read the guide first.
+- `docs/Claude-Desktop-User-Guide-Generic.md` -- full getting-started guide for all users,
+  especially those with low technical comfort. Send this to everyone.
+- `docs/Claude-Cowork-Quick-Start-Generic.md` -- quick reference for Cowork sessions.
+  Send this to users who are already comfortable with the basics.
+
+For initial setup, also send the platform-appropriate script and setup guide:
+- Mac users: `mac/setup-claude-code-generic.sh` and `mac/docs/Claude-Code-New-User-Setup-Generic.md`
+- PC users: `pc/setup-claude-code-generic.ps1` and `pc/docs/Claude-Code-New-User-Setup-PC-Generic.md`
+
+Have users read the setup guide before running the script.
 
 ### 5. Generate PDFs (optional)
 
 If you have Pandoc and Typst installed:
 
 ```bash
+# User guide (share with all staff)
+pandoc --pdf-engine=typst docs/Claude-Desktop-User-Guide-Generic.md \
+  -o docs/Claude-Desktop-User-Guide-Generic.pdf
+
+# Mac setup guide
 pandoc --pdf-engine=typst mac/docs/Claude-Code-New-User-Setup-Generic.md \
   -o mac/docs/Claude-Code-New-User-Setup-Generic.pdf
 ```
