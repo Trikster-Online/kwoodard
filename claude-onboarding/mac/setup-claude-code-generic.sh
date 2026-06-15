@@ -28,6 +28,10 @@
 #                    reachable in new Terminal sessions.
 #   2.3  2026-06-15  Added Step 5: Claude Desktop app (brew --cask claude).
 #                    Renumbered subsequent steps 5-9 to 6-10.
+#   2.4  2026-06-15  Added gh and jq to Step 7 (renamed to Developer tools).
+#                    Expanded Step 10 with credential-settings-guard and
+#                    stop-notify hooks. Updated settings.json template with
+#                    effortLevel, UserPromptSubmit, PostToolUse, Stop hooks.
 # =============================================================================
 
 # -- Output helpers --
@@ -51,10 +55,10 @@ echo "    3. Install Node.js via Homebrew (if needed)"
 echo "    4. Install Claude Code CLI (if needed)"
 echo "    5. Install Claude Desktop app"
 echo "    6. Install Pandoc, Typst, and Poppler (document tools)"
-echo "    7. Install code quality tools (shellcheck, swiftlint, Python linters)"
+echo "    7. Install developer tools (shellcheck, swiftlint, gh, jq, Python linters)"
 echo "    8. Create ~/Workspaces/ folder structure"
 echo "    9. Create ~/.claude/ starter configuration"
-echo "   10. Install credential guard security hook"
+echo "   10. Install security hooks and notifications"
 echo ""
 echo "  Existing files are never overwritten."
 echo "  Do NOT run with sudo."
@@ -303,16 +307,18 @@ fi
 echo ""
 
 # =============================================================================
-# STEP 7 — Code quality tools (shellcheck, swiftlint, Python linters)
-# These tools are used for code quality checks across your projects.
-# shellcheck lints Bash and Zsh scripts. swiftlint lints Swift source files.
-# The Python tools (flake8, black, isort, mypy, pytest) are used for Python
-# projects. PSScriptAnalyzer lints PowerShell scripts and is installed
-# automatically if PowerShell Core (pwsh) is already present.
+# STEP 7 — Developer tools (shellcheck, swiftlint, gh, jq, Python linters)
+# Installs code quality linters and general CLI utilities used alongside
+# Claude Code. shellcheck lints Bash and Zsh scripts. swiftlint lints Swift
+# source files. gh is the GitHub CLI for managing repos and pull requests from
+# the terminal. jq is a JSON processor useful for parsing API and curl output.
+# The Python tools (flake8, black, isort, mypy, pytest) cover linting,
+# formatting, and testing. PSScriptAnalyzer lints PowerShell scripts if
+# PowerShell Core (pwsh) is present.
 # Note: Python tools are invoked as "python3 -m <tool>" because pip3 on macOS
 # installs them to a path that is not in $PATH by default.
 # =============================================================================
-print_step 7 "Code quality tools (shellcheck, swiftlint, Python linters)"
+print_step 7 "Developer tools (shellcheck, swiftlint, gh, jq, Python linters)"
 
 shellcheck_ok=0
 swiftlint_ok=0
@@ -351,6 +357,38 @@ else
     else
         print_err "swiftlint install failed."
         ERRORS+=("swiftlint")
+    fi
+fi
+
+# -- gh (GitHub CLI) --
+if command -v gh &>/dev/null; then
+    print_ok "gh already installed: $(gh --version | head -1)"
+    SKIPPED+=("gh (GitHub CLI)")
+else
+    print_warn "gh not installed. Installing via Homebrew..."
+    brew install gh
+    if command -v gh &>/dev/null; then
+        print_ok "gh installed: $(gh --version | head -1)"
+        INSTALLED+=("gh (GitHub CLI)")
+    else
+        print_err "gh install failed."
+        ERRORS+=("gh (GitHub CLI)")
+    fi
+fi
+
+# -- jq --
+if command -v jq &>/dev/null; then
+    print_ok "jq already installed: $(jq --version)"
+    SKIPPED+=("jq")
+else
+    print_warn "jq not installed. Installing via Homebrew..."
+    brew install jq
+    if command -v jq &>/dev/null; then
+        print_ok "jq installed: $(jq --version)"
+        INSTALLED+=("jq")
+    else
+        print_err "jq install failed."
+        ERRORS+=("jq")
     fi
 fi
 
@@ -441,7 +479,7 @@ echo ""
 #   - _Global/CLAUDE.md           Project context (fill in your info)
 #   - ~/.claude/settings.json     Basic settings with credential guard wired in
 #   - ~/.claude/commands/         Ready for custom slash commands you add later
-#   - ~/.claude/hooks/            Ready for automation hooks (Step 10 adds one)
+#   - ~/.claude/hooks/            Ready for automation hooks (Step 10 adds three)
 # Existing files are never overwritten.
 # =============================================================================
 print_step 9 "$HOME/.claude/ starter configuration"
@@ -554,7 +592,20 @@ if [[ -f "$SETTINGS" ]]; then
 else
     cat > "$SETTINGS" << 'SETTINGS_TEMPLATE'
 {
+  "effortLevel": "high",
   "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "date +%s > /tmp/claude-turn-start.txt",
+            "timeout": 3,
+            "async": true
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash",
@@ -564,6 +615,31 @@ else
             "command": "~/.claude/hooks/credential-guard.sh",
             "timeout": 5,
             "statusMessage": "Checking for inline credentials..."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/credential-settings-guard.sh",
+            "timeout": 5,
+            "statusMessage": "Checking settings.json for credentials..."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/stop-notify.sh",
+            "timeout": 5,
+            "async": true
           }
         ]
       }
@@ -577,31 +653,26 @@ fi
 echo ""
 
 # =============================================================================
-# STEP 10 — Credential guard hook
-# Installs a security hook that watches every shell command Claude runs and
-# blocks any command that appears to contain an inline credential (password,
-# token, API key, etc.). This is an automatic safety net -- it does not replace
-# good security habits, but it catches common mistakes before they happen.
+# STEP 10 — Security hooks and notifications
+# Installs three automation hooks:
+#   credential-guard.sh          -- blocks inline credentials in Bash commands
+#   credential-settings-guard.sh -- checks settings.json for credentials after writes
+#   stop-notify.sh               -- macOS notification when Claude finishes a long turn
 # =============================================================================
-print_step 10 "Credential guard hook"
+print_step 10 "Security hooks and notifications"
 
+# -- credential-guard.sh --
 HOOK="$HOME/.claude/hooks/credential-guard.sh"
 
 if [[ -f "$HOOK" ]]; then
-    print_ok "Already installed at ~/.claude/hooks/credential-guard.sh"
+    print_ok "credential-guard.sh already installed"
     SKIPPED+=("Credential guard hook")
 else
     cat > "$HOOK" << 'HOOKSCRIPT'
 #!/bin/bash
-#
-# credential-guard.sh
-# PreToolUse/Bash hook -- warns when a shell command contains an inline credential.
-#
-# Looks for patterns like:  VARIABLE_NAME="long-value"
-# where the variable name suggests a secret (SECRET, PASSWORD, TOKEN, KEY, etc.)
-# and the value is long enough to be a real credential (not a short placeholder).
-# Placeholders like YOUR_VALUE_HERE, ${VAR}, or <VALUE> are allowed through.
-#
+# credential-guard.sh -- PreToolUse/Bash hook
+# Warns when a shell command contains an inline credential value.
+# Allows short values and placeholder patterns (YOUR_VALUE_HERE, ${VAR}, etc.).
 
 INPUT=$(cat)
 
@@ -616,21 +687,128 @@ except:
 
 [ -z "$CMD" ] && exit 0
 
-# Block if a known credential variable name is followed by a long value
 if echo "$CMD" | grep -qiE \
   '(SECRET|PASSWORD|PASSWD|API_KEY|ACCESS_TOKEN|BEARER_TOKEN|CLIENT_SECRET|PRIVATE_KEY)\s*=\s*["\x27]?[A-Za-z0-9_.\-]{20,}["\x27]?'; then
 
-    # Allow if the value looks like a placeholder
     if ! echo "$CMD" | grep -qiE '(YOUR_[A-Z]|_HERE["\x27 \\]|\$\{[A-Z]|\$[A-Z_][A-Z_0-9]+|<[A-Z_]+>)'; then
         echo '{"systemMessage": "WARNING: Credential guard: This command appears to contain a real credential value inline. Store credentials in a .env file and reference them as environment variables instead of passing them directly in commands."}'
     fi
 
 fi
 HOOKSCRIPT
-
     chmod +x "$HOOK"
-    print_ok "Installed credential guard hook"
+    print_ok "Installed credential-guard.sh"
     INSTALLED+=("Credential guard hook")
+fi
+
+# -- credential-settings-guard.sh --
+SETTINGS_HOOK="$HOME/.claude/hooks/credential-settings-guard.sh"
+
+if [[ -f "$SETTINGS_HOOK" ]]; then
+    print_ok "credential-settings-guard.sh already installed"
+    SKIPPED+=("Settings credential guard")
+else
+    cat > "$SETTINGS_HOOK" << 'SETTINGSHOOK'
+#!/bin/bash
+# credential-settings-guard.sh -- PostToolUse/Write|Edit hook
+# Scans settings.json after writes for credential values in mcpServers.env blocks.
+# AI assistants sometimes write real credentials into settings.json when
+# configuring MCP servers -- this catches that immediately after the write.
+
+INPUT=$(cat)
+
+FILE=$(echo "$INPUT" | python3 -c "
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    path = d.get('tool_input', {}).get('file_path', '') or \
+           d.get('tool_response', {}).get('filePath', '')
+    print(path)
+except:
+    print('')
+" 2>/dev/null)
+
+[ -z "$FILE" ] && exit 0
+
+case "$FILE" in
+  */settings.json|*/settings.local.json) ;;
+  *) exit 0 ;;
+esac
+
+[ ! -f "$FILE" ] && exit 0
+
+RESULT=$(python3 - "$FILE" << 'PYEOF' 2>/dev/null
+import json, sys, re
+
+filepath = sys.argv[1]
+try:
+    data = json.load(open(filepath))
+except:
+    sys.exit(0)
+
+SENSITIVE_KEYS = {'SECRET', 'PASSWORD', 'KEY', 'TOKEN', 'CLIENT_ID', 'CLIENT_SECRET'}
+PLACEHOLDER_PATTERNS = re.compile(
+    r'^(YOUR_|PLACEHOLDER|_HERE$|<[A-Z_]+>|\$\{|\$[A-Z_])', re.IGNORECASE
+)
+
+found = []
+for server_name, cfg in data.get('mcpServers', {}).items():
+    env = cfg.get('env', {})
+    for k, v in env.items():
+        if not any(s in k.upper() for s in SENSITIVE_KEYS):
+            continue
+        if not v or not isinstance(v, str):
+            continue
+        if PLACEHOLDER_PATTERNS.match(v):
+            continue
+        if len(v) < 10:
+            continue
+        found.append(f"{server_name}.env.{k}")
+
+if found:
+    print('FOUND:' + ', '.join(found))
+PYEOF
+)
+
+if echo "$RESULT" | grep -q "^FOUND:"; then
+  FIELDS=$(echo "$RESULT" | sed 's/^FOUND://')
+  echo "{\"systemMessage\": \"WARNING: Credential guard: settings.json appears to contain a real credential in an mcpServers.env block (fields: ${FIELDS}). Credentials must be stored in a .env file -- never directly in settings.json. Remove those values now.\"}"
+fi
+SETTINGSHOOK
+    chmod +x "$SETTINGS_HOOK"
+    print_ok "Installed credential-settings-guard.sh"
+    INSTALLED+=("Settings credential guard")
+fi
+
+# -- stop-notify.sh --
+NOTIFY_HOOK="$HOME/.claude/hooks/stop-notify.sh"
+
+if [[ -f "$NOTIFY_HOOK" ]]; then
+    print_ok "stop-notify.sh already installed"
+    SKIPPED+=("Stop notification hook")
+else
+    cat > "$NOTIFY_HOOK" << 'NOTIFYHOOK'
+#!/bin/bash
+# stop-notify.sh -- Stop hook
+# Sends a macOS desktop notification when Claude finishes a turn that took
+# more than 20 seconds. Lets you step away during long tasks without polling.
+# Requires the companion UserPromptSubmit timestamp hook in settings.json.
+
+TURN_START_FILE="/tmp/claude-turn-start.txt"
+
+[ ! -f "$TURN_START_FILE" ] && exit 0
+
+TURN_START=$(cat "$TURN_START_FILE" 2>/dev/null)
+NOW=$(date +%s)
+ELAPSED=$(( NOW - TURN_START ))
+
+[ "$ELAPSED" -lt 20 ] && exit 0
+
+osascript -e 'display notification "Claude finished -- waiting for your input." with title "Claude Code" sound name "Ping"' 2>/dev/null || true
+NOTIFYHOOK
+    chmod +x "$NOTIFY_HOOK"
+    print_ok "Installed stop-notify.sh"
+    INSTALLED+=("Stop notification hook")
 fi
 echo ""
 

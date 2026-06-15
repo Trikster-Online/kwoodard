@@ -49,11 +49,13 @@ The standalone GUI application for Claude. Claude Desktop lets you use Claude wi
 **Step 6 -- Pandoc and Typst**
 Document conversion tools. Pandoc converts files between formats (for example, from Markdown to PDF or Word). Typst is a lightweight PDF engine that Pandoc uses to create PDFs. Together they let Claude Code produce finished PDF documents without any additional software.
 
-**Step 7 -- Code Quality Tools**
-Developer tools that check the quality and style of scripts across multiple languages. The script installs:
+**Step 7 -- Developer Tools**
+Code quality linters and general CLI utilities used alongside Claude Code. The script installs:
 
 - **shellcheck** -- analyzes Bash and Zsh scripts for common errors and style issues
 - **swiftlint** -- checks Swift source files for style and correctness
+- **gh** -- GitHub CLI for managing repositories, branches, and pull requests from the terminal
+- **jq** -- command-line JSON processor, useful for reading and filtering API output
 - **flake8, black, isort, mypy, and pytest** -- Python linting, formatting, and testing tools
 - **PSScriptAnalyzer** -- PowerShell linting (installed automatically if PowerShell Core is already present on your Mac)
 
@@ -77,8 +79,14 @@ Starter configuration files that tell Claude Code about you and how you like to 
 - `~/Workspaces/_Global/CLAUDE.md` -- Organization context. Fill in your name, role, tools, and standards.
 - `~/.claude/settings.json` -- Technical configuration that wires up the credential guard (Step 10). You do not need to edit this file.
 
-**Step 10 -- Credential Guard**
-A security hook that automatically monitors every shell command Claude runs and blocks any command that appears to contain an inline password, token, or API key. It is a safety net -- it does not replace good security judgment, but it catches common mistakes before they happen.
+**Step 10 -- Security Hooks and Notifications**
+Three automation hooks that run quietly in the background during every Claude Code session:
+
+- **Credential guard** -- monitors every shell command Claude runs and warns if it appears to contain an inline password, token, or API key
+- **Settings guard** -- scans `settings.json` immediately after any write to catch credentials that were accidentally placed there during MCP server configuration
+- **Stop notification** -- sends a macOS desktop notification (with a sound) when Claude finishes a task that took more than 20 seconds, so you can step away during long jobs without polling the terminal
+
+These hooks are safety nets. They do not replace good security judgment, but they catch the most common mistakes automatically.
 
 ---
 
@@ -193,7 +201,7 @@ Claude Code can read and write files on your Mac. Keep these rules in mind at al
 - **Student records, HR data, and health information** must never be shared with Claude or any AI tool -- FERPA and HIPAA apply
 - **When in doubt, leave it out** -- if you are not sure whether sharing something is appropriate, check with your IT administrator before proceeding
 
-The credential guard installed in Step 10 provides an automatic check, but it is a safety net, not a substitute for your own judgment.
+The security hooks installed in Step 10 provide automatic checks, but they are a safety net, not a substitute for your own judgment.
 
 ---
 

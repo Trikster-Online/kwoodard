@@ -103,8 +103,9 @@ PDFs are excluded from this repo by default (see `.gitignore`).
 
 **Mac (`setup-claude-code-generic.sh`):**
 Xcode CLT, Homebrew, Node.js, Claude Code CLI, Claude Desktop app,
-Pandoc/Typst/Poppler, shellcheck, swiftlint, Python linters,
-Workspaces folder structure, starter CLAUDE.md templates, credential guard hook.
+Pandoc/Typst/Poppler, shellcheck, swiftlint, gh, jq, Python linters,
+Workspaces folder structure, starter CLAUDE.md templates,
+credential guard hook, settings guard hook, stop notification hook.
 
 **PC (`setup-claude-code-generic.ps1`):**
 winget, PowerShell 7, Git, Node.js, Claude Code CLI, VS Code, Claude Desktop,
