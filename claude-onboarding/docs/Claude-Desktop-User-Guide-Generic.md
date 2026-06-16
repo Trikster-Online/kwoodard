@@ -60,20 +60,19 @@ Click the text box at the bottom of the screen and type something. Here are thre
 
 Hit Enter and see what comes back. Read it over. The first response is rarely the final answer - that is by design.
 
-### Push back if it is not right
+### Treat the first response as a first draft
 
 This is the part most new users skip, and it is the most important part.
 
-If the response is too long, say so:
-> "Can you shorten this to three bullet points?"
+Think of Claude's first response as a rough draft. You are the editor -- no hesitation needed. Here are phrases you can paste directly into the chat:
 
-If the tone is off, say so:
-> "This sounds too formal. Can you make it more conversational?"
+**Too long:** "Can you shorten this to three bullet points?"
 
-If something is missing, say so:
-> "This is good but it did not mention what to do if the request gets rejected. Can you add that?"
+**Wrong tone:** "This sounds too formal. Can you make it more conversational?"
 
-Claude does not take this personally. Pushing back and refining is exactly how the tool is supposed to work.
+**Missing something:** "This is good but it did not mention what to do if the request gets rejected. Can you add that?"
+
+Refining the response is exactly how the tool is supposed to work. The first exchange rarely produces the final version.
 
 ---
 
@@ -186,33 +185,7 @@ This is not a drill - it is just a way to build the habit of reaching for the to
 
 Once you are comfortable with Claude Desktop, Cowork is the next step. It is useful when you are working on an ongoing project with files, documents, and context that would take too long to paste in every session.
 
-To start a Cowork session:
-
-1. Open Claude Desktop
-2. Click the **Cowork** tab
-3. Use the folder picker to select the folder you want to work in
-4. Paste the session-start prompt below and press Enter
-5. Read Claude's response - it should confirm what context it loaded
-6. Describe what you need
-
-**Paste this at the start of every Cowork session:**
-
-```
-Before we start, please do the following:
-
-1. Read the CLAUDE.md file in this folder (if one exists) and tell me
-   what context you loaded from it.
-2. Tell me what your active instructions are, including anything from
-   your global setup.
-3. Confirm you are ready to begin, and summarize in one sentence what
-   kind of work this session is set up for.
-
-Do not start any tasks yet. Wait for me to describe what I need.
-```
-
-This takes about 15 seconds. It makes sure Claude loaded the right context before it touches anything.
-
-If your folder does not have a CLAUDE.md file, Claude will still work - it just has less context about what you are doing. Your IT administrator can help you set one up if you are working on an ongoing project.
+When you are ready, ask IT for the **Claude Cowork Quick Start Guide**. It covers how to set up a session, what to confirm before work begins, and what to watch out for. There is no rush -- the basics in this guide are enough to get real value from Claude before you need Cowork at all.
 
 ---
 

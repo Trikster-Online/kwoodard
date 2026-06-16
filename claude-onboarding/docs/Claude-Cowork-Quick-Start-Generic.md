@@ -28,6 +28,7 @@ Both tools use the same AI and the same CLAUDE.md configuration files.
 ## Before You Start a Session
 
 Make sure the folder you are working in has a `CLAUDE.md` file that describes:
+
 - What this folder is for
 - Any relevant standards or rules Claude should follow
 - What tools or systems are involved
@@ -35,6 +36,7 @@ Make sure the folder you are working in has a `CLAUDE.md` file that describes:
 If the folder does not have a `CLAUDE.md`, Cowork will still work, but it will
 have less context about your specific environment. The setup script created
 starter files at:
+
 - `~/Workspaces/_Global/CLAUDE.md` -- organization-wide context
 - `~/.claude/CLAUDE.md` -- your personal instructions
 
