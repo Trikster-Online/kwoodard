@@ -182,6 +182,26 @@ Type your first question or task and press Enter to send it.
 
 ---
 
+## Generating PDFs from Markdown
+
+Pandoc and Typst (installed in Step 6) let you convert any Markdown file to a finished PDF from the command line. This is how Claude Code produces polished documents from `.md` source files.
+
+**Basic command:**
+
+```
+pandoc --pdf-engine=typst your-document.md -o your-document.pdf
+```
+
+**Example:** To convert a file called `staff-guide.md` in your current folder:
+
+```
+pandoc --pdf-engine=typst staff-guide.md -o staff-guide.pdf
+```
+
+**TIP:** Claude Code can draft Markdown documents for you. Ask it to write a guide, save the result as a `.md` file, then run the command above to produce the finished PDF.
+
+---
+
 ## Your First Week With Claude Code
 
 Here are a few low-stakes tasks to get comfortable:
