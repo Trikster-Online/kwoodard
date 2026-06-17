@@ -22,7 +22,7 @@ placeholders to find everything that needs customizing before you share it.
 
 ```
 claude-onboarding/
-  docs/                                    Shared guides (apply to Mac and PC)
+  docs/                                    Shared guides (apply to all platforms)
     Claude-Desktop-User-Guide-Generic.md   Full getting-started guide for all users
     Claude-Cowork-Quick-Start-Generic.md   Quick reference for Cowork sessions
 
@@ -31,6 +31,15 @@ claude-onboarding/
     CLAUDE.md                              Notes for Claude Code in this folder
     docs/
       Claude-Code-New-User-Setup-Generic.md  Plain-language setup guide
+    templates/
+      global-claude-md-generic.md          Starter global CLAUDE.md template
+      personal-claude-md-generic.md        Starter personal CLAUDE.md template
+
+  linux/                                   Linux Mint onboarding kit
+    setup-claude-code-generic.sh           Bootstrap script (bash)
+    CLAUDE.md                              Notes for Claude Code in this folder
+    docs/
+      Claude-Code-New-User-Setup-Linux-Generic.md  Plain-language setup guide
     templates/
       global-claude-md-generic.md          Starter global CLAUDE.md template
       personal-claude-md-generic.md        Starter personal CLAUDE.md template
@@ -90,6 +99,7 @@ Two guides serve different audiences:
 
 For initial setup, also send the platform-appropriate script and setup guide:
 - Mac users: `mac/setup-claude-code-generic.sh` and `mac/docs/Claude-Code-New-User-Setup-Generic.md`
+- Linux users: `linux/setup-claude-code-generic.sh` and `linux/docs/Claude-Code-New-User-Setup-Linux-Generic.md`
 - PC users: `pc/setup-claude-code-generic.ps1` and `pc/docs/Claude-Code-New-User-Setup-PC-Generic.md`
 
 Have users read the setup guide before running the script.
@@ -106,6 +116,10 @@ pandoc --pdf-engine=typst docs/Claude-Desktop-User-Guide-Generic.md \
 # Mac setup guide
 pandoc --pdf-engine=typst mac/docs/Claude-Code-New-User-Setup-Generic.md \
   -o mac/docs/Claude-Code-New-User-Setup-Generic.pdf
+
+# Linux setup guide
+pandoc --pdf-engine=typst linux/docs/Claude-Code-New-User-Setup-Linux-Generic.md \
+  -o linux/docs/Claude-Code-New-User-Setup-Linux-Generic.pdf
 ```
 
 PDFs are excluded from this repo by default (see `.gitignore`).
@@ -114,13 +128,20 @@ PDFs are excluded from this repo by default (see `.gitignore`).
 
 ## What the Scripts Install
 
-**Mac (`setup-claude-code-generic.sh`):**
+**Mac (`mac/setup-claude-code-generic.sh`):**
 Xcode CLT, Homebrew, Node.js, Claude Code CLI, Claude Desktop app,
 Pandoc/Typst/Poppler, shellcheck, swiftlint, gh, jq, Python linters,
 Workspaces folder structure, starter CLAUDE.md templates,
 credential guard hook, settings guard hook, stop notification hook.
 
-**PC (`setup-claude-code-generic.ps1`):**
+**Linux (`linux/setup-claude-code-generic.sh`):**
+apt build-essentials, Node.js LTS (NodeSource), Claude Code CLI,
+Pandoc/Typst/Poppler, shellcheck, gh, jq, Python linters,
+Workspaces folder structure, starter CLAUDE.md templates,
+credential guard hook, settings guard hook, stop notification hook (notify-send).
+Note: Claude Desktop is not available on Linux. swiftlint is macOS-only and not installed.
+
+**PC (`pc/setup-claude-code-generic.ps1`):**
 winget, PowerShell 7, Git, Node.js, Claude Code CLI, VS Code, Claude Desktop,
 Pandoc/Typst, PSScriptAnalyzer, Python linters, core VS Code extensions,
 Workspaces folder structure, starter CLAUDE.md templates, credential guard hook.
